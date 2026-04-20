@@ -8,6 +8,13 @@ export enum Theme {
   CLASSIC = 'classic',
 }
 
+export interface NavItem {
+  label: string;
+  href?: string;
+  enabled: boolean;
+  children?: NavItem[];
+}
+
 export interface HeroSlide {
   type: string;
   badge?: string;
@@ -46,6 +53,12 @@ export class Setting {
 
   @Prop({ type: [Object], default: [] })
   heroSlides: HeroSlide[];
+
+  @Prop({ type: [Object], default: [] })
+  navItems: NavItem[];
+
+  @Prop({ type: [String], default: [] })
+  featuredAnnouncements: string[];
 
   @Prop({ type: Object, default: {} })
   socialLinks: SocialLinks;

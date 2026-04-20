@@ -4,11 +4,77 @@ import {
   IsEnum,
   IsArray,
   IsNotEmpty,
+  IsBoolean,
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Theme } from '../schemas/setting.schema';
+
+export class NavItemLeafDto {
+  @ApiPropertyOptional()
+  @IsString()
+  @IsNotEmpty()
+  label: string;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  href?: string;
+
+  @ApiPropertyOptional()
+  @IsBoolean()
+  @IsOptional()
+  enabled?: boolean;
+}
+
+export class NavItemSubDto {
+  @ApiPropertyOptional()
+  @IsString()
+  @IsNotEmpty()
+  label: string;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  href?: string;
+
+  @ApiPropertyOptional()
+  @IsBoolean()
+  @IsOptional()
+  enabled?: boolean;
+
+  @ApiPropertyOptional({ type: [NavItemLeafDto] })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => NavItemLeafDto)
+  @IsOptional()
+  children?: NavItemLeafDto[];
+}
+
+export class NavItemDto {
+  @ApiPropertyOptional()
+  @IsString()
+  @IsNotEmpty()
+  label: string;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  href?: string;
+
+  @ApiPropertyOptional()
+  @IsBoolean()
+  @IsOptional()
+  enabled?: boolean;
+
+  @ApiPropertyOptional({ type: [NavItemSubDto] })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => NavItemSubDto)
+  @IsOptional()
+  children?: NavItemSubDto[];
+}
 
 export class HeroSlideDto {
   @ApiPropertyOptional({ enum: ['text', 'image'], example: 'text' })
@@ -108,6 +174,19 @@ export class UpdateSettingDto {
   @Type(() => HeroSlideDto)
   @IsOptional()
   heroSlides?: HeroSlideDto[];
+
+  @ApiPropertyOptional({ type: [NavItemDto] })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => NavItemDto)
+  @IsOptional()
+  navItems?: NavItemDto[];
+
+  @ApiPropertyOptional({ type: [String], description: 'Announcement IDs to feature in sidebar' })
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  featuredAnnouncements?: string[];
 
   @ApiPropertyOptional({ type: SocialLinksDto })
   @ValidateNested()
