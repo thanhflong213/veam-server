@@ -4,19 +4,18 @@ import {
   IsOptional,
   IsEnum,
   IsDateString,
-  IsBoolean,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { AnnouncementStatus } from '../schemas/announcement.schema';
+import { InstitutionStatus } from '../schemas/institution.schema';
 
-export class CreateAnnouncementDto {
-  @ApiProperty({ example: 'Call for Papers: VEAM 2026' })
+export class CreateInstitutionDto {
+  @ApiProperty({ example: 'Vietnam National University' })
   @IsString()
   @IsNotEmpty()
   title: string;
 
   @ApiPropertyOptional({
-    example: 'call-for-papers-veam-2026',
+    example: 'vietnam-national-university',
     description: 'Auto-generated from title if omitted',
   })
   @IsString()
@@ -38,21 +37,20 @@ export class CreateAnnouncementDto {
   @IsOptional()
   coverImage?: string;
 
-  @ApiPropertyOptional({ enum: AnnouncementStatus, default: AnnouncementStatus.DRAFT })
-  @IsEnum(AnnouncementStatus)
+  @ApiPropertyOptional({
+    enum: InstitutionStatus,
+    default: InstitutionStatus.DRAFT,
+  })
+  @IsEnum(InstitutionStatus)
   @IsOptional()
-  status?: AnnouncementStatus;
+  status?: InstitutionStatus;
 
   @ApiPropertyOptional({
-    description: 'ISO 8601 publish date. Auto-set to now when status=published and omitted.',
+    description:
+      'ISO 8601 publish date. Auto-set to now when status=published and omitted.',
     example: '2026-01-15T09:00:00.000Z',
   })
   @IsDateString()
   @IsOptional()
   publishedAt?: string;
-
-  @ApiPropertyOptional({ default: false, description: 'Show on client when true' })
-  @IsBoolean()
-  @IsOptional()
-  recommend?: boolean;
 }

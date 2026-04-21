@@ -25,11 +25,30 @@ export class PagesService {
     return this.pageModel.create({ ...dto, slug });
   }
 
-  async findPublished(): Promise<PageDocument[]> {
-    return this.pageModel
-      .find({ status: PageStatus.PUBLISHED })
+  async findPublished(): Promise<Record<string, unknown>[]> {
+    const rootPages = await this.pageModel
+      .find({ status: PageStatus.PUBLISHED, parent: null })
       .sort({ slug: 1 })
+      .lean<Record<string, unknown>[]>()
       .exec();
+
+    const allChildren = await this.pageModel
+      .find({ status: PageStatus.PUBLISHED, parent: { $ne: null } })
+      .sort({ slug: 1 })
+      .lean<Record<string, unknown>[]>()
+      .exec();
+
+    const childrenByParent = new Map<string, Record<string, unknown>[]>();
+    for (const child of allChildren) {
+      const key = String(child.parent);
+      if (!childrenByParent.has(key)) childrenByParent.set(key, []);
+      childrenByParent.get(key)!.push(child);
+    }
+
+    return rootPages.map((page) => ({
+      ...page,
+      children: childrenByParent.get(String(page._id)) ?? [],
+    }));
   }
 
   async findAll(): Promise<PageDocument[]> {
@@ -38,7 +57,7 @@ export class PagesService {
 
   async findBySlug(slug: string): Promise<PageDocument> {
     const page = await this.pageModel
-      .findOne({ slug: slug.toLowerCase(), status: PageStatus.PUBLISHED })
+      .findOne({ slug: slug.toLowerCase(), status: PageStatus.PUBLISHED, disabled: { $ne: true } })
       .exec();
     if (!page) throw new NotFoundException(`Page "${slug}" not found`);
     return page;

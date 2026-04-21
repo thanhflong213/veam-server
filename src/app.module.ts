@@ -8,6 +8,7 @@ import { PagesModule } from './modules/pages/pages.module';
 import { AnnouncementsModule } from './modules/announcements/announcements.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { UploadsModule } from './modules/uploads/uploads.module';
+import { InstitutionModule } from './modules/institution/institution.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { UploadsModule } from './modules/uploads/uploads.module';
     AnnouncementsModule,
     SettingsModule,
     UploadsModule,
+    InstitutionModule,
   ],
 })
 export class AppModule {}

@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
+import mongoose from 'mongoose';
 
 export type PageDocument = HydratedDocument<Page>;
 
@@ -31,6 +32,12 @@ export class Page {
     default: PageStatus.DRAFT,
   })
   status: PageStatus;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Page', default: null })
+  parent: mongoose.Types.ObjectId | null;
+
+  @Prop({ default: false })
+  disabled!: boolean;
 }
 
 export const PageSchema = SchemaFactory.createForClass(Page);

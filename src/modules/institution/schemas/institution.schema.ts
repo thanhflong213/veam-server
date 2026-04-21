@@ -1,15 +1,15 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
-export type AnnouncementDocument = HydratedDocument<Announcement>;
+export type InstitutionDocument = HydratedDocument<Institution>;
 
-export enum AnnouncementStatus {
+export enum InstitutionStatus {
   DRAFT = 'draft',
   PUBLISHED = 'published',
 }
 
 @Schema({ timestamps: true })
-export class Announcement {
+export class Institution {
   @Prop({ required: true })
   title: string;
 
@@ -27,19 +27,15 @@ export class Announcement {
 
   @Prop({
     type: String,
-    enum: Object.values(AnnouncementStatus),
-    default: AnnouncementStatus.DRAFT,
+    enum: Object.values(InstitutionStatus),
+    default: InstitutionStatus.DRAFT,
   })
-  status: AnnouncementStatus;
+  status: InstitutionStatus;
 
   @Prop({ type: Date, default: null })
   publishedAt: Date | null;
-
-  @Prop({ default: false })
-  recommend: boolean;
 }
 
-export const AnnouncementSchema = SchemaFactory.createForClass(Announcement);
+export const InstitutionSchema = SchemaFactory.createForClass(Institution);
 
-// Optimise the most common queries
-AnnouncementSchema.index({ status: 1, publishedAt: -1 });
+InstitutionSchema.index({ status: 1, publishedAt: -1 });

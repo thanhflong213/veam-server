@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsOptional, IsEnum } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsEnum, IsMongoId, IsBoolean } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { PageStatus } from '../schemas/page.schema';
 
@@ -35,4 +35,17 @@ export class CreatePageDto {
   @IsEnum(PageStatus)
   @IsOptional()
   status?: PageStatus;
+
+  @ApiPropertyOptional({ description: 'Parent page ObjectId. Omit for root-level pages.' })
+  @IsMongoId()
+  @IsOptional()
+  parent?: string;
+
+  @ApiPropertyOptional({
+    description: 'When true the nav item is visible but not clickable — used for group headers that only exist to nest child pages.',
+    default: false,
+  })
+  @IsBoolean()
+  @IsOptional()
+  disabled?: boolean;
 }
