@@ -55,6 +55,7 @@ export class AnnouncementsService {
     const [items, total] = await Promise.all([
       this.announcementModel
         .find(filter)
+        .select('-contentHtml')
         .sort({ publishedAt: -1 })
         .skip(skip)
         .limit(limit)
@@ -74,6 +75,7 @@ export class AnnouncementsService {
     const [items, total] = await Promise.all([
       this.announcementModel
         .find(filter)
+        .select('-contentHtml')
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
@@ -81,6 +83,12 @@ export class AnnouncementsService {
       this.announcementModel.countDocuments(filter),
     ]);
     return { items, ...buildPaginationMeta(total, page, limit) };
+  }
+
+  async findById(id: string): Promise<AnnouncementDocument> {
+    const doc = await this.announcementModel.findById(id).exec();
+    if (!doc) throw new NotFoundException('Announcement not found');
+    return doc;
   }
 
   async findBySlug(slug: string): Promise<AnnouncementDocument> {

@@ -20,6 +20,9 @@ export class Announcement {
   excerpt: string;
 
   @Prop({ default: '' })
+  description: string;
+
+  @Prop({ default: '' })
   contentHtml: string;
 
   @Prop({ default: '' })

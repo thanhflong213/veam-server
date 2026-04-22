@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -26,33 +27,38 @@ export class PagesService {
   }
 
   async findPublished(): Promise<Record<string, unknown>[]> {
-    const rootPages = await this.pageModel
-      .find({ status: PageStatus.PUBLISHED, parent: null })
-      .sort({ slug: 1 })
-      .lean<Record<string, unknown>[]>()
-      .exec();
-
-    const allChildren = await this.pageModel
-      .find({ status: PageStatus.PUBLISHED, parent: { $ne: null } })
+    const allPages = await this.pageModel
+      .find({ status: PageStatus.PUBLISHED })
+      .select('-contentHtml')
       .sort({ slug: 1 })
       .lean<Record<string, unknown>[]>()
       .exec();
 
     const childrenByParent = new Map<string, Record<string, unknown>[]>();
-    for (const child of allChildren) {
-      const key = String(child.parent);
-      if (!childrenByParent.has(key)) childrenByParent.set(key, []);
-      childrenByParent.get(key)!.push(child);
+    for (const page of allPages) {
+      if (page.parent) {
+        const key = String(page.parent);
+        if (!childrenByParent.has(key)) childrenByParent.set(key, []);
+        childrenByParent.get(key)!.push(page);
+      }
     }
 
-    return rootPages.map((page) => ({
+    const attachChildren = (page: Record<string, unknown>): Record<string, unknown> => ({
       ...page,
-      children: childrenByParent.get(String(page._id)) ?? [],
-    }));
+      children: (childrenByParent.get(String(page._id)) ?? []).map(attachChildren),
+    });
+
+    return allPages.filter((page) => !page.parent).map(attachChildren);
   }
 
   async findAll(): Promise<PageDocument[]> {
-    return this.pageModel.find().sort({ slug: 1 }).exec();
+    return this.pageModel.find().select('-contentHtml').sort({ slug: 1 }).exec();
+  }
+
+  async findById(id: string): Promise<PageDocument> {
+    const page = await this.pageModel.findById(id).exec();
+    if (!page) throw new NotFoundException('Page not found');
+    return page;
   }
 
   async findBySlug(slug: string): Promise<PageDocument> {
@@ -63,7 +69,29 @@ export class PagesService {
     return page;
   }
 
+  private async wouldCreateCycle(pageId: string, newParentId: string): Promise<boolean> {
+    let currentId: string | null = newParentId;
+    while (currentId) {
+      if (currentId === pageId) return true;
+      const ancestor = await this.pageModel
+        .findById(currentId)
+        .select('parent')
+        .lean<{ parent: unknown } | null>()
+        .exec();
+      currentId = ancestor?.parent ? String(ancestor.parent) : null;
+    }
+    return false;
+  }
+
   async update(id: string, dto: UpdatePageDto): Promise<PageDocument> {
+    if (dto.parent !== undefined && dto.parent !== null) {
+      if (String(dto.parent) === id) {
+        throw new BadRequestException('A page cannot be its own parent');
+      }
+      if (await this.wouldCreateCycle(id, String(dto.parent))) {
+        throw new BadRequestException('Setting this parent would create a circular reference');
+      }
+    }
     const page = await this.pageModel
       .findByIdAndUpdate(id, dto, { new: true, runValidators: true })
       .exec();

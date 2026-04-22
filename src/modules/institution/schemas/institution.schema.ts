@@ -20,6 +20,9 @@ export class Institution {
   excerpt: string;
 
   @Prop({ default: '' })
+  description: string;
+
+  @Prop({ default: '' })
   contentHtml: string;
 
   @Prop({ default: '' })

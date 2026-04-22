@@ -10,11 +10,7 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiBearerAuth,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { PagesService } from './pages.service';
 import { CreatePageDto } from './dto/create-page.dto';
 import { UpdatePageDto } from './dto/update-page.dto';
@@ -41,6 +37,16 @@ export class PagesController {
   @ApiOperation({ summary: 'Admin: list all pages (draft + published)' })
   findAll() {
     return this.pagesService.findAll();
+  }
+
+  @Get('manage/:id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Admin: get a single page by ID (includes contentHtml)',
+  })
+  findById(@Param('id') id: string) {
+    return this.pagesService.findById(id);
   }
 
   @Post()

@@ -43,6 +43,14 @@ export class InstitutionController {
     return this.institutionService.findAll(query);
   }
 
+  @Get('manage/:id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Admin: get a single institution by ID (includes contentHtml)' })
+  findById(@Param('id') id: string) {
+    return this.institutionService.findById(id);
+  }
+
   @Post()
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()

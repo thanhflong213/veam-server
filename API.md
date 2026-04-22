@@ -34,9 +34,7 @@ Response:
 
 ### GET /admins/me
 
-**Protected**
-
-Returns the profile of the currently logged-in admin.
+**Protected** — Returns the profile of the currently logged-in admin.
 
 Response:
 
@@ -53,21 +51,22 @@ Response:
 
 ## Pages
 
-Pages power the nav menu. `GET /pages` returns a tree: root pages (no `parent`) each include a `children` array of their child pages. Pages with `disabled: true` appear in the nav but are not navigable — they are group headers.
+Pages power the nav menu. `GET /pages` returns a recursive tree: every root page (no `parent`) includes a `children` array, and each child may itself contain a `children` array. Pages with `disabled: true` appear in the nav but are **not clickable** — they are group headers that only exist to nest children.
+
+`contentHtml` is **excluded** from all list endpoints. Fetch it only via `GET /pages/:slug` or `GET /pages/manage/:id`.
 
 ### GET /pages
 
-**Public** — Used to build the nav menu.
+**Public** — Nav tree of all published pages.
 
 Response:
 
 ```json
 [
   {
-    "_id": "...",
+    "_id": "664f1a2b3c4d5e6f7a8b9c0d",
     "slug": "about",
     "title": "About",
-    "contentHtml": "",
     "seoTitle": "",
     "seoDescription": "",
     "status": "published",
@@ -77,12 +76,12 @@ Response:
     "updatedAt": "...",
     "children": [
       {
-        "_id": "...",
+        "_id": "664f1a2b3c4d5e6f7a8b9c0e",
         "slug": "about-veam",
         "title": "About VEAM",
-        "parent": "<parent_id>",
+        "parent": "664f1a2b3c4d5e6f7a8b9c0d",
         "disabled": false,
-        ...
+        "children": []
       }
     ]
   }
@@ -91,15 +90,37 @@ Response:
 
 ### GET /pages/:slug
 
-**Public** — Fetch a single page's content. Returns 404 if the page is disabled or not published.
+**Public** — Single published page with full content. Returns `404` if the page is disabled or not published.
 
-Response: Single page object (no `children` field).
+Response:
+
+```json
+{
+  "_id": "...",
+  "slug": "about-veam",
+  "title": "About VEAM",
+  "contentHtml": "<p>Full HTML content here.</p>",
+  "seoTitle": "About VEAM | VEAM",
+  "seoDescription": "Learn about VEAM...",
+  "status": "published",
+  "parent": "...",
+  "disabled": false,
+  "createdAt": "...",
+  "updatedAt": "..."
+}
+```
 
 ### GET /pages/manage
 
-**Protected** — List all pages (draft + published) for the admin UI.
+**Protected** — Flat list of all pages (draft + published), no `children` field, no `contentHtml`.
 
-Response: Array of page objects (flat, no `children`).
+Response: Array of page objects.
+
+### GET /pages/manage/:id
+
+**Protected** — Single page by MongoDB ID. Includes `contentHtml` — use this when opening a page in the admin editor.
+
+Response: Single page object (same shape as `GET /pages/:slug`).
 
 ### POST /pages
 
@@ -115,20 +136,27 @@ Request:
   "seoTitle": "About VEAM | Vietnam Economists Annual Meeting",
   "seoDescription": "Learn about VEAM...",
   "status": "draft",
-  "parent": "<parent_page_id_or_omit>",
+  "parent": "<parent_page_id>",
   "disabled": false
 }
 ```
 
-- `slug` — required, URL-safe, auto-normalised (lowercased, spaces → hyphens).
-- `parent` — omit for root-level pages; provide a page ObjectId to nest under a parent.
-- `disabled` — set `true` to make this a non-clickable group header in the nav.
+| Field | Required | Notes |
+|-------|----------|-------|
+| `slug` | yes | URL-safe, auto-normalised (lowercase, spaces → hyphens) |
+| `title` | yes | |
+| `contentHtml` | no | Full HTML body |
+| `seoTitle` | no | |
+| `seoDescription` | no | |
+| `status` | no | `"draft"` (default) or `"published"` |
+| `parent` | no | Omit for root pages. Provide a page ObjectId to nest under a parent. The API rejects circular references. |
+| `disabled` | no | `false` (default). Set `true` for a non-clickable nav group header. |
 
 Response: Created page object.
 
 ### PATCH /pages/:id
 
-**Protected** — Update any field except `slug`.
+**Protected** — Update any field except `slug`. Setting `parent` that would create a circular reference returns `400`.
 
 Request: Same fields as POST, all optional.
 
@@ -148,11 +176,14 @@ Response:
 
 ## Announcements
 
+`contentHtml` is **excluded** from list endpoints (`GET /announcements` and `GET /announcements/manage`). Fetch it only via `GET /announcements/:slug` or `GET /announcements/manage/:id`.
+
 ### GET /announcements
 
 **Public** — Paginated list of published announcements.
 
 Query params:
+
 | Param | Default | Notes |
 |-------|---------|-------|
 | `page` | `1` | |
@@ -163,17 +194,17 @@ Response:
 
 ```json
 {
-  "data": [
+  "items": [
     {
       "_id": "...",
       "title": "Call for Papers: VEAM 2026",
       "slug": "call-for-papers-veam-2026",
       "excerpt": "Short summary...",
-      "contentHtml": "<p>...</p>",
+      "description": "Longer plain-text description...",
       "coverImage": "https://...",
       "status": "published",
       "publishedAt": "2025-06-01T00:00:00.000Z",
-      " ": false,
+      "recommend": false,
       "createdAt": "...",
       "updatedAt": "..."
     }
@@ -186,13 +217,38 @@ Response:
 
 ### GET /announcements/:slug
 
-**Public** — Single published announcement.
+**Public** — Single published announcement with full content.
 
-Response: Single announcement object.
+Response:
+
+```json
+{
+  "_id": "...",
+  "title": "Call for Papers: VEAM 2026",
+  "slug": "call-for-papers-veam-2026",
+  "excerpt": "Short summary...",
+  "description": "Longer plain-text description...",
+  "contentHtml": "<p>Full HTML content.</p>",
+  "coverImage": "https://...",
+  "status": "published",
+  "publishedAt": "2025-06-01T00:00:00.000Z",
+  "recommend": false,
+  "createdAt": "...",
+  "updatedAt": "..."
+}
+```
 
 ### GET /announcements/manage
 
-**Protected** — Paginated list of all announcements (draft + published). Same query params as above.
+**Protected** — Paginated list of all announcements (draft + published), no `contentHtml`. Same query params as above.
+
+Response: Same paginated shape as `GET /announcements` but includes drafts.
+
+### GET /announcements/manage/:id
+
+**Protected** — Single announcement by MongoDB ID. Includes `contentHtml` — use this when opening an announcement in the admin editor.
+
+Response: Single announcement object (same shape as `GET /announcements/:slug`).
 
 ### POST /announcements
 
@@ -205,6 +261,7 @@ Request:
   "title": "Call for Papers: VEAM 2026",
   "slug": "optional-custom-slug",
   "excerpt": "Short summary shown in list views.",
+  "description": "Longer plain-text description shown on cards or detail intros.",
   "contentHtml": "<p>Full HTML content.</p>",
   "coverImage": "https://example.com/cover.jpg",
   "status": "draft",
@@ -213,17 +270,23 @@ Request:
 }
 ```
 
-- `slug` — auto-generated from `title` if omitted.
-- `publishedAt` — auto-set to now when `status` is `"published"` and this field is omitted.
-- `recommend` — when `true`, the announcement can be featured/highlighted on the client.
+| Field | Required | Notes |
+|-------|----------|-------|
+| `title` | yes | |
+| `slug` | no | Auto-generated from `title` if omitted. Immutable after creation. |
+| `excerpt` | no | Short text for list cards |
+| `description` | no | Longer plain-text description |
+| `contentHtml` | no | Full HTML body |
+| `coverImage` | no | Absolute URL |
+| `status` | no | `"draft"` (default) or `"published"` |
+| `publishedAt` | no | ISO 8601. Auto-set to now when `status=published` and omitted. |
+| `recommend` | no | `false` (default). When `true`, the item can be featured on the home page. |
 
-Response: Created announcement object.
+Response: Created announcement object (full, including `contentHtml`).
 
 ### PATCH /announcements/:id
 
-**Protected** — Update any field except `slug`.
-
-Request: Same fields as POST, all optional.
+**Protected** — Update any field except `slug`. All fields optional.
 
 Response: Updated announcement object.
 
@@ -243,6 +306,8 @@ Response:
 
 Same shape as Announcements but without the `recommend` field.
 
+`contentHtml` is **excluded** from list endpoints. Fetch it only via `GET /institutions/:slug` or `GET /institutions/manage/:id`.
+
 ### GET /institutions
 
 **Public** — Paginated list of published institutions.
@@ -253,13 +318,13 @@ Response:
 
 ```json
 {
-  "data": [
+  "items": [
     {
       "_id": "...",
       "title": "Vietnam National University",
       "slug": "vietnam-national-university",
-      "excerpt": "...",
-      "contentHtml": "<p>...</p>",
+      "excerpt": "Short summary...",
+      "description": "Longer plain-text description...",
       "coverImage": "https://...",
       "status": "published",
       "publishedAt": "2025-01-01T00:00:00.000Z",
@@ -275,11 +340,35 @@ Response:
 
 ### GET /institutions/:slug
 
-**Public** — Single published institution.
+**Public** — Single published institution with full content.
+
+Response:
+
+```json
+{
+  "_id": "...",
+  "title": "Vietnam National University",
+  "slug": "vietnam-national-university",
+  "excerpt": "Short summary...",
+  "description": "Longer plain-text description...",
+  "contentHtml": "<p>Full HTML content.</p>",
+  "coverImage": "https://...",
+  "status": "published",
+  "publishedAt": "2025-01-01T00:00:00.000Z",
+  "createdAt": "...",
+  "updatedAt": "..."
+}
+```
 
 ### GET /institutions/manage
 
-**Protected** — All institutions (draft + published).
+**Protected** — Paginated list of all institutions (draft + published), no `contentHtml`. Same query params as above.
+
+### GET /institutions/manage/:id
+
+**Protected** — Single institution by MongoDB ID. Includes `contentHtml` — use this when opening an institution in the admin editor.
+
+Response: Single institution object (same shape as `GET /institutions/:slug`).
 
 ### POST /institutions
 
@@ -292,6 +381,7 @@ Request:
   "title": "Vietnam National University",
   "slug": "optional-custom-slug",
   "excerpt": "Short summary.",
+  "description": "Longer plain-text description.",
   "contentHtml": "<p>Full HTML content.</p>",
   "coverImage": "https://example.com/cover.jpg",
   "status": "draft",
@@ -299,15 +389,34 @@ Request:
 }
 ```
 
-Response: Created institution object.
+| Field | Required | Notes |
+|-------|----------|-------|
+| `title` | yes | |
+| `slug` | no | Auto-generated from `title` if omitted. Immutable after creation. |
+| `excerpt` | no | Short text for list cards |
+| `description` | no | Longer plain-text description |
+| `contentHtml` | no | Full HTML body |
+| `coverImage` | no | Absolute URL |
+| `status` | no | `"draft"` (default) or `"published"` |
+| `publishedAt` | no | ISO 8601. Auto-set to now when `status=published` and omitted. |
+
+Response: Created institution object (full, including `contentHtml`).
 
 ### PATCH /institutions/:id
 
-**Protected** — Update any field except `slug`.
+**Protected** — Update any field except `slug`. All fields optional.
+
+Response: Updated institution object.
 
 ### DELETE /institutions/:id
 
-**Protected** → `{ "deleted": true }`
+**Protected**
+
+Response:
+
+```json
+{ "deleted": true }
+```
 
 ---
 
@@ -390,6 +499,7 @@ Request:
 ```
 
 `heroSlide` fields:
+
 | Field | Type | Required | Notes |
 |-------|------|----------|-------|
 | `type` | `"text" \| "image"` | yes | |
@@ -425,7 +535,7 @@ Response:
 }
 ```
 
-The `url` is a relative path served statically by the backend. Prepend the base host to use it as `<img src>`.
+The `url` is a relative path served statically by the backend. Prepend the base host to use as `<img src>`.
 
 ---
 

@@ -55,6 +55,7 @@ export class InstitutionService {
     const [items, total] = await Promise.all([
       this.institutionModel
         .find(filter)
+        .select('-contentHtml')
         .sort({ publishedAt: -1 })
         .skip(skip)
         .limit(limit)
@@ -74,6 +75,7 @@ export class InstitutionService {
     const [items, total] = await Promise.all([
       this.institutionModel
         .find(filter)
+        .select('-contentHtml')
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
@@ -81,6 +83,12 @@ export class InstitutionService {
       this.institutionModel.countDocuments(filter),
     ]);
     return { items, ...buildPaginationMeta(total, page, limit) };
+  }
+
+  async findById(id: string): Promise<InstitutionDocument> {
+    const doc = await this.institutionModel.findById(id).exec();
+    if (!doc) throw new NotFoundException('Institution not found');
+    return doc;
   }
 
   async findBySlug(slug: string): Promise<InstitutionDocument> {

@@ -27,6 +27,11 @@ export class CreateInstitutionDto {
   @IsOptional()
   excerpt?: string;
 
+  @ApiPropertyOptional({ description: 'Longer plain-text description' })
+  @IsString()
+  @IsOptional()
+  description?: string;
+
   @ApiPropertyOptional({ description: 'Full HTML content' })
   @IsString()
   @IsOptional()

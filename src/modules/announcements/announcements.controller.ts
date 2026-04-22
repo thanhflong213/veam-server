@@ -43,6 +43,14 @@ export class AnnouncementsController {
     return this.announcementsService.findAll(query);
   }
 
+  @Get('manage/:id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Admin: get a single announcement by ID (includes contentHtml)' })
+  findById(@Param('id') id: string) {
+    return this.announcementsService.findById(id);
+  }
+
   @Post()
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
