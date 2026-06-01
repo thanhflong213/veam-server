@@ -96,3 +96,124 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+
+```
+veam-server
+├─ .prettierrc
+├─ API.md
+├─ eslint.config.mjs
+├─ nest-cli.json
+├─ package-lock.json
+├─ package.json
+├─ README.md
+├─ src
+│  ├─ app.module.ts
+│  ├─ common
+│  │  ├─ decorators
+│  │  │  └─ current-user.decorator.ts
+│  │  ├─ filters
+│  │  │  └─ http-exception.filter.ts
+│  │  ├─ guards
+│  │  │  └─ jwt-auth.guard.ts
+│  │  ├─ helpers
+│  │  │  ├─ pagination.helper.ts
+│  │  │  └─ slug.helper.ts
+│  │  ├─ index.ts
+│  │  └─ interceptors
+│  │     └─ response.interceptor.ts
+│  ├─ config
+│  │  └─ configuration.ts
+│  ├─ database
+│  │  └─ database.module.ts
+│  ├─ main.ts
+│  └─ modules
+│     ├─ admins
+│     │  ├─ admins.controller.spec.ts
+│     │  ├─ admins.controller.ts
+│     │  ├─ admins.module.ts
+│     │  ├─ admins.service.spec.ts
+│     │  ├─ admins.service.ts
+│     │  ├─ dto
+│     │  │  └─ change-password.dto.ts
+│     │  ├─ entities
+│     │  └─ schemas
+│     │     └─ admin.schema.ts
+│     ├─ announcements
+│     │  ├─ announcements.controller.spec.ts
+│     │  ├─ announcements.controller.ts
+│     │  ├─ announcements.module.ts
+│     │  ├─ announcements.service.spec.ts
+│     │  ├─ announcements.service.ts
+│     │  ├─ dto
+│     │  │  ├─ create-announcement.dto.ts
+│     │  │  ├─ query-announcement.dto.ts
+│     │  │  └─ update-announcement.dto.ts
+│     │  ├─ entities
+│     │  └─ schemas
+│     │     └─ announcement.schema.ts
+│     ├─ auth
+│     │  ├─ auth.controller.spec.ts
+│     │  ├─ auth.controller.ts
+│     │  ├─ auth.module.ts
+│     │  ├─ auth.service.spec.ts
+│     │  ├─ auth.service.ts
+│     │  ├─ dto
+│     │  │  └─ login.dto.ts
+│     │  ├─ entities
+│     │  ├─ interfaces
+│     │  │  └─ jwt-payload.interface.ts
+│     │  └─ strategies
+│     │     └─ jwt.strategy.ts
+│     ├─ institution
+│     │  ├─ dto
+│     │  │  ├─ create-institution.dto.ts
+│     │  │  ├─ query-institution.dto.ts
+│     │  │  └─ update-institution.dto.ts
+│     │  ├─ entities
+│     │  │  └─ institution.entity.ts
+│     │  ├─ institution.controller.spec.ts
+│     │  ├─ institution.controller.ts
+│     │  ├─ institution.module.ts
+│     │  ├─ institution.service.spec.ts
+│     │  ├─ institution.service.ts
+│     │  └─ schemas
+│     │     └─ institution.schema.ts
+│     ├─ pages
+│     │  ├─ dto
+│     │  │  ├─ create-page.dto.ts
+│     │  │  └─ update-page.dto.ts
+│     │  ├─ entities
+│     │  ├─ pages.controller.spec.ts
+│     │  ├─ pages.controller.ts
+│     │  ├─ pages.module.ts
+│     │  ├─ pages.service.spec.ts
+│     │  ├─ pages.service.ts
+│     │  └─ schemas
+│     │     └─ page.schema.ts
+│     ├─ settings
+│     │  ├─ dto
+│     │  │  └─ update-setting.dto.ts
+│     │  ├─ entities
+│     │  ├─ schemas
+│     │  │  └─ setting.schema.ts
+│     │  ├─ settings.controller.spec.ts
+│     │  ├─ settings.controller.ts
+│     │  ├─ settings.module.ts
+│     │  ├─ settings.service.spec.ts
+│     │  └─ settings.service.ts
+│     └─ uploads
+│        ├─ dto
+│        ├─ entities
+│        ├─ uploads.controller.spec.ts
+│        ├─ uploads.controller.ts
+│        ├─ uploads.module.ts
+│        ├─ uploads.service.spec.ts
+│        └─ uploads.service.ts
+├─ test
+│  ├─ app.e2e-spec.ts
+│  └─ jest-e2e.json
+├─ tsconfig.build.json
+├─ tsconfig.json
+└─ uploads
+
+```

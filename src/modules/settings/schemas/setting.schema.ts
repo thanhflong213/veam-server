@@ -39,6 +39,40 @@ export interface ContactInfo {
   businessHours?: string;
 }
 
+export interface ConferenceInfo {
+  date?: string;
+  location?: string;
+}
+
+export interface ImportantDate {
+  date: string;
+  title: string;
+  description?: string;
+}
+
+export interface Keynote {
+  name: string;
+  institution: string;
+  topic: string;
+  avatarUrl?: string;
+}
+
+export interface SpecialSession {
+  title: string;
+  chair: string;
+}
+
+export interface Publication {
+  title: string;
+  description?: string;
+}
+
+export interface OrganizingInstitution {
+  name: string;
+  role: string;
+  logoUrl?: string;
+}
+
 @Schema({ timestamps: true })
 export class Setting {
   @Prop({ default: 'VEAM' })
@@ -65,6 +99,24 @@ export class Setting {
 
   @Prop({ type: Object, default: {} })
   contactInfo: ContactInfo;
+
+  @Prop({ type: Object, default: {} })
+  conferenceInfo!: ConferenceInfo;
+
+  @Prop({ type: [Object], default: [] })
+  importantDates!: ImportantDate[];
+
+  @Prop({ type: [Object], default: [] })
+  keynotes!: Keynote[];
+
+  @Prop({ type: [Object], default: [] })
+  specialSessions!: SpecialSession[];
+
+  @Prop({ type: [Object], default: [] })
+  publications!: Publication[];
+
+  @Prop({ type: [Object], default: [] })
+  organizingInstitutions!: OrganizingInstitution[];
 }
 
 export const SettingSchema = SchemaFactory.createForClass(Setting);

@@ -422,7 +422,7 @@ Response:
 
 ## Settings
 
-A single site-wide settings document (upserted — always one record).
+A single site-wide settings document (upserted — always one record). All fields are optional on `PATCH` — send only what you want to change.
 
 ### GET /settings
 
@@ -475,6 +475,33 @@ Response:
     "address": "...",
     "businessHours": "8:00 AM – 6:00 PM"
   },
+  "conferenceInfo": {
+    "date": "July 13–14, 2026",
+    "location": "Hue, Vietnam"
+  },
+  "importantDates": [
+    { "date": "May 31, 2026", "title": "Paper Submission Deadline", "description": "5:00 PM Hanoi time (GMT+7)" },
+    { "date": "Jun 15, 2026", "title": "Acceptance Notification", "description": "Authors notified by email" },
+    { "date": "Jun 16, 2026", "title": "Registration Opens", "description": "Early bird rates available" },
+    { "date": "Jun 30, 2026", "title": "Registration Closes", "description": "Final deadline for all participants" },
+    { "date": "Jul 13–14, 2026", "title": "Main Conference", "description": "Hue University of Economics, Vietnam" }
+  ],
+  "keynotes": [
+    { "name": "Prof. Philippe Aghion", "institution": "London School of Economics", "topic": "Innovation & Growth Economics", "avatarUrl": null },
+    { "name": "Prof. Thi Kim Cuong PHAM", "institution": "University of Paris Nanterre", "topic": "Development Economics", "avatarUrl": null }
+  ],
+  "specialSessions": [
+    { "title": "Behavioral Economics and Environment", "chair": "Chair: Khanh-Nam Pham, UEH, Vietnam" },
+    { "title": "Development Economics", "chair": "Chair: Quang Thanh Le, University of Wollongong, Australia" }
+  ],
+  "publications": [
+    { "title": "Revue d'Économie du Développement", "description": "ISVE–VEAM Special Issue featuring selected conference papers" },
+    { "title": "Journal of International Economics and Management", "description": "Foreign Trade University flagship journal" }
+  ],
+  "organizingInstitutions": [
+    { "name": "University of Economics – Hue University", "role": "Host Institution", "logoUrl": null },
+    { "name": "Foreign Trade University", "role": "Co-organizer", "logoUrl": null }
+  ],
   "createdAt": "...",
   "updatedAt": "..."
 }
@@ -482,7 +509,7 @@ Response:
 
 ### PATCH /settings
 
-**Protected** — Partial update. All fields optional.
+**Protected** — Partial update. All fields optional. Arrays are replaced wholesale when provided.
 
 Request:
 
@@ -492,13 +519,21 @@ Request:
   "activeTheme": "modern",
   "heroSlides": [...],
   "navItems": [...],
-  "featuredAnnouncements": ["<id>"],
+  "featuredAnnouncements": ["<announcement_id>"],
   "socialLinks": { "facebook": "https://..." },
-  "contactInfo": { "email": "veam@depocen.org" }
+  "contactInfo": { "email": "veam@depocen.org" },
+  "conferenceInfo": { "date": "July 13–14, 2026", "location": "Hue, Vietnam" },
+  "importantDates": [...],
+  "keynotes": [...],
+  "specialSessions": [...],
+  "publications": [...],
+  "organizingInstitutions": [...]
 }
 ```
 
-`heroSlide` fields:
+**Field reference**
+
+`heroSlide`:
 
 | Field | Type | Required | Notes |
 |-------|------|----------|-------|
@@ -510,7 +545,53 @@ Request:
 | `ctaLabel` | string | no | Button label |
 | `ctaUrl` | string | no | Button link |
 
-Response: Updated settings object.
+`conferenceInfo`:
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `date` | string | Display string, e.g. `"July 13–14, 2026"` |
+| `location` | string | e.g. `"Hue, Vietnam"` |
+
+`importantDate`:
+
+| Field | Type | Required | Notes |
+|-------|------|----------|-------|
+| `date` | string | yes | Display string, e.g. `"May 31, 2026"` |
+| `title` | string | yes | e.g. `"Paper Submission Deadline"` |
+| `description` | string | no | Sub-text shown below the title |
+
+`keynote`:
+
+| Field | Type | Required | Notes |
+|-------|------|----------|-------|
+| `name` | string | yes | e.g. `"Prof. Philippe Aghion"` |
+| `institution` | string | yes | |
+| `topic` | string | yes | |
+| `avatarUrl` | string | no | Absolute URL — falls back to initials on FE |
+
+`specialSession`:
+
+| Field | Type | Required |
+|-------|------|----------|
+| `title` | string | yes |
+| `chair` | string | yes |
+
+`publication`:
+
+| Field | Type | Required |
+|-------|------|----------|
+| `title` | string | yes |
+| `description` | string | no |
+
+`organizingInstitution`:
+
+| Field | Type | Required | Notes |
+|-------|------|----------|-------|
+| `name` | string | yes | |
+| `role` | string | yes | e.g. `"Host Institution"` |
+| `logoUrl` | string | no | Absolute URL |
+
+Response: Updated settings object (full shape as shown in `GET /settings`).
 
 ---
 

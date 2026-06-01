@@ -157,6 +157,98 @@ export class ContactInfoDto {
   businessHours?: string;
 }
 
+export class ConferenceInfoDto {
+  @ApiPropertyOptional({ example: 'July 13–14, 2026' })
+  @IsString()
+  @IsOptional()
+  date?: string;
+
+  @ApiPropertyOptional({ example: 'Hue, Vietnam' })
+  @IsString()
+  @IsOptional()
+  location?: string;
+}
+
+export class ImportantDateDto {
+  @ApiPropertyOptional({ example: 'May 31, 2026' })
+  @IsString()
+  @IsNotEmpty()
+  date: string;
+
+  @ApiPropertyOptional({ example: 'Paper Submission Deadline' })
+  @IsString()
+  @IsNotEmpty()
+  title: string;
+
+  @ApiPropertyOptional({ example: '5:00 PM Hanoi time (GMT+7)' })
+  @IsString()
+  @IsOptional()
+  description?: string;
+}
+
+export class KeynoteDto {
+  @ApiPropertyOptional({ example: 'Prof. Philippe Aghion' })
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @ApiPropertyOptional({ example: 'London School of Economics' })
+  @IsString()
+  @IsNotEmpty()
+  institution: string;
+
+  @ApiPropertyOptional({ example: 'Innovation & Growth Economics' })
+  @IsString()
+  @IsNotEmpty()
+  topic: string;
+
+  @ApiPropertyOptional({ description: 'Absolute URL of speaker photo' })
+  @IsString()
+  @IsOptional()
+  avatarUrl?: string;
+}
+
+export class SpecialSessionDto {
+  @ApiPropertyOptional({ example: 'Behavioral Economics and Environment' })
+  @IsString()
+  @IsNotEmpty()
+  title: string;
+
+  @ApiPropertyOptional({ example: 'Chair: Khanh-Nam Pham, UEH, Vietnam' })
+  @IsString()
+  @IsNotEmpty()
+  chair: string;
+}
+
+export class PublicationDto {
+  @ApiPropertyOptional({ example: "Revue d'Économie du Développement" })
+  @IsString()
+  @IsNotEmpty()
+  title: string;
+
+  @ApiPropertyOptional({ example: 'ISVE–VEAM Special Issue' })
+  @IsString()
+  @IsOptional()
+  description?: string;
+}
+
+export class OrganizingInstitutionDto {
+  @ApiPropertyOptional({ example: 'University of Economics – Hue University' })
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @ApiPropertyOptional({ example: 'Host Institution' })
+  @IsString()
+  @IsNotEmpty()
+  role: string;
+
+  @ApiPropertyOptional({ description: 'Absolute URL of institution logo' })
+  @IsString()
+  @IsOptional()
+  logoUrl?: string;
+}
+
 export class UpdateSettingDto {
   @ApiPropertyOptional({ example: 'VEAM 2026' })
   @IsString()
@@ -199,4 +291,45 @@ export class UpdateSettingDto {
   @Type(() => ContactInfoDto)
   @IsOptional()
   contactInfo?: ContactInfoDto;
+
+  @ApiPropertyOptional({ type: ConferenceInfoDto })
+  @ValidateNested()
+  @Type(() => ConferenceInfoDto)
+  @IsOptional()
+  conferenceInfo?: ConferenceInfoDto;
+
+  @ApiPropertyOptional({ type: [ImportantDateDto] })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ImportantDateDto)
+  @IsOptional()
+  importantDates?: ImportantDateDto[];
+
+  @ApiPropertyOptional({ type: [KeynoteDto] })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => KeynoteDto)
+  @IsOptional()
+  keynotes?: KeynoteDto[];
+
+  @ApiPropertyOptional({ type: [SpecialSessionDto] })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => SpecialSessionDto)
+  @IsOptional()
+  specialSessions?: SpecialSessionDto[];
+
+  @ApiPropertyOptional({ type: [PublicationDto] })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => PublicationDto)
+  @IsOptional()
+  publications?: PublicationDto[];
+
+  @ApiPropertyOptional({ type: [OrganizingInstitutionDto] })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => OrganizingInstitutionDto)
+  @IsOptional()
+  organizingInstitutions?: OrganizingInstitutionDto[];
 }
